@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.uav.mapper.UavMapper">
+
+    <!-- 结果映射：数据库列名（下划线）→ Java 字段名（驼峰） -->
+    <resultMap id="UavResultMap" type="com.example.uav.domain.entity.Uav">
+        <id     column="id"              property="id"/>
+        <result column="uav_code"        property="uavCode"/>
+        <result column="model"           property="model"/>
+        <result column="manufacturer"    property="manufacturer"/>
+        <result column="max_payload"     property="maxPayload"/>
+        <result column="max_altitude"    property="maxAltitude"/>
+        <result column="max_flight_time" property="maxFlightTime"/>
+        <result column="max_speed"       property="maxSpeed"/>
+        <result column="wingspan"        property="wingspan"/>
+        <result column="weight"          property="weight"/>
+        <result column="status"          property="status"/>
+        <result column="remark"          property="remark"/>
+        <result column="ai_generated"    property="aiGenerated"/>
+        <result column="created_at"      property="createdAt"/>
+        <result column="updated_at"      property="updatedAt"/>
+        <result column="deleted"         property="deleted"/>
+    </resultMap>
+
+    <!-- 查询列列表（复用） -->
+    <sql id="Base_Column_List">
+        id, uav_code, model, manufacturer, max_payload, max_altitude, max_flight_time,
+        max_speed, wingspan, weight, status, remark, ai_generated, created_at, updated_at, deleted
+    </sql>
+
+    <!-- 按条件分页查询（兼容 MySQL 和 SQLite） -->
+    <select id="selectList" parameterType="com.example.uav.domain.query.UavQuery" resultMap="UavResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_uav
+        WHERE deleted = 0
+        <if test="model != null and model != ''">
+            AND model LIKE CONCAT('%', #{model}, '%')
+        </if>
+        <if test="uavCode != null and uavCode != ''">
+            AND uav_code = #{uavCode}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 动态更新（只更新非 null 字段） -->
+    <update id="updateById" parameterType="com.example.uav.domain.entity.Uav">
+        UPDATE t_uav
+        <set>
+            <if test="model != null and model != ''">model = #{model},</if>
+            <if test="manufacturer != null">manufacturer = #{manufacturer},</if>
+            <if test="maxPayload != null">max_payload = #{maxPayload},</if>
+            <if test="maxAltitude != null">max_altitude = #{maxAltitude},</if>
+            <if test="maxFlightTime != null">max_flight_time = #{maxFlightTime},</if>
+            <if test="maxSpeed != null">max_speed = #{maxSpeed},</if>
+            <if test="wingspan != null">wingspan = #{wingspan},</if>
+            <if test="weight != null">weight = #{weight},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            updated_at = #{updatedAt},
+        </set>
+        WHERE id = #{id} AND deleted = 0
+    </update>
+
+</mapper>

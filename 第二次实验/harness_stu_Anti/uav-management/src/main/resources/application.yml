@@ -1,0 +1,43 @@
+spring:
+  profiles:
+    active: sqlite   # 切换为 mysql 即可使用 MySQL 数据库
+
+  thymeleaf:
+    encoding: UTF-8
+    cache: false
+    suffix: .html
+    prefix: classpath:/templates/
+
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
+server:
+  port: 8081
+  servlet:
+    context-path: /
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.uav.domain.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+pagehelper:
+  helper-dialect: mysql   # sqlite profile 中会覆盖为 sqlite
+  reasonable: true
+  support-methods-arguments: true
+
+shiro:
+  loginUrl: /login
+  successUrl: /uav/list
+  unauthorizedUrl: /403
+  sessionManager:
+    globalSessionTimeout: 1800000
+
+logging:
+  level:
+    com.example.uav: debug
+    com.example.uav.mapper: debug

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>编辑无人机</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e8e8e8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background:
+                linear-gradient(145deg,
+                    #f5f5f5 0%,
+                    #d4d4d4 25%,
+                    #c0c0c0 50%,
+                    #a8a8a8 75%,
+                    #989898 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 10%, rgba(255, 255, 255, 0.5) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 90%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse 100% 60% at 50% 50%, rgba(180, 180, 180, 0.15) 0%, transparent 70%),
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.02) 2px,
+                    rgba(0, 0, 0, 0.02) 4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+            transition: color 0.15s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .form-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f5f5f5 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .card-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h3 i {
+            color: var(--warning-color);
+        }
+
+        .card-body {
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-label span {
+            color: var(--danger-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            background-color: #fafbfc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            background-color: white;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237f8c8d' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #d68910;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+
+        .current-value {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container">
+            <a th:href="@{/drones}" class="back-link">
+                <i class="fa fa-arrow-left"></i> 返回无人机列表
+            </a>
+
+            <div class="form-card">
+                <div class="card-header">
+                    <h3>
+                        <i class="fa fa-pencil"></i>
+                        编辑无人机
+                    </h3>
+                </div>
+
+                <div class="card-body">
+                    <form th:action="@{/drones/save}" method="post">
+                        <input type="hidden" name="id" th:value="${drone.id}">
+
+                        <div class="form-group">
+                            <label class="form-label">名称 <span>*</span></label>
+                            <input type="text" class="form-control" name="name" th:value="${drone.name}"
+                                placeholder="请输入无人机名称" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">型号 <span>*</span></label>
+                            <input type="text" class="form-control" name="model" th:value="${drone.model}"
+                                placeholder="请输入型号" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">制造商 <span>*</span></label>
+                            <input type="text" class="form-control" name="manufacturer" th:value="${drone.manufacturer}"
+                                placeholder="请输入制造商" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">序列号 <span>*</span></label>
+                            <input type="text" class="form-control" name="serialNumber" th:value="${drone.serialNumber}"
+                                placeholder="请输入序列号" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">飞行时间（小时） <span>*</span></label>
+                            <input type="number" step="0.01" class="form-control" name="flightTime"
+                                th:value="${drone.flightTime}" placeholder="请输入飞行时间" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">状态 <span>*</span></label>
+                            <select class="form-control" name="status" required>
+                                <option value="" disabled>请选择状态</option>
+                                <option value="运行中" th:selected="${drone.status == '运行中'}">运行中</option>
+                                <option value="维护中" th:selected="${drone.status == '维护中'}">维护中</option>
+                                <option value="已退役" th:selected="${drone.status == '已退役'}">已退役</option>
+                                <option value="已损坏" th:selected="${drone.status == '已损坏'}">已损坏</option>
+                                <option
+                                    th:if="${drone.status != '运行中' && drone.status != '维护中' && drone.status != '已退役' && drone.status != '已损坏'}"
+                                    th:value="${drone.status}" th:selected="true" th:text="['当前值: ', ${drone.status}]">
+                                </option>
+                            </select>
+                            <div class="current-value"
+                                th:if="${drone.status != '运行中' && drone.status != '维护中' && drone.status != '已退役' && drone.status != '已损坏'}">
+                                当前状态值异常，请重新选择
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a th:href="@{/drones}" class="btn btn-outline">
+                                <i class="fa fa-times"></i> 取消
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fa fa-check"></i> 保存修改
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

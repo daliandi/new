@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无人机管理系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Metal+Mania&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a1a2e;
+            --accent-color: #4a90d9;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 50%, #f0f0f0 100%);
+            background-attachment: fixed;
+            color: #1a1a2e;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse 60% 40% at 20% 10%, rgba(74, 144, 217, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 80% 90%, rgba(122, 106, 154, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 48px 24px;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .page-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #4a90d9 0%, #7a6a9a 100%);
+            border-radius: 2px;
+        }
+
+        .page-header p {
+            font-size: 15px;
+            color: #6b7280;
+            letter-spacing: 0.3px;
+            margin-top: 20px;
+        }
+
+        .search-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1a1a2e;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #4a90d9;
+            box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.1);
+            background: #ffffff;
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: none;
+            letter-spacing: 0.3px;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .search-card .btn.btn-primary,
+        body .btn.btn-primary {
+            background: linear-gradient(135deg,
+                    #00f5ff 0%,
+                    #7b2cbf 25%,
+                    #3a0ca3 50%,
+                    #4361ee 75%,
+                    #00f5ff 100%) !important;
+            background-size: 400% 400% !important;
+            color: #ffffff !important;
+            box-shadow:
+                0 0 20px rgba(0, 245, 255, 0.5),
+                0 0 40px rgba(123, 44, 191, 0.3),
+                0 4px 14px rgba(0, 0, 0, 0.2) !important;
+            animation: holographic 8s ease infinite !important;
+            position: relative !important;
+            overflow: hidden !important;
+            border: none !important;
+        }
+
+        .search-card .btn.btn-primary::before,
+        body .btn.btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent);
+            transition: left 0.5s ease;
+        }
+
+        .search-card .btn.btn-primary:hover::before,
+        body .btn.btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .search-card .btn.btn-primary:hover,
+        body .btn.btn-primary:hover {
+            box-shadow:
+                0 0 30px rgba(0, 245, 255, 0.7),
+                0 0 60px rgba(123, 44, 191, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .search-card .btn.btn-outline,
+        body .btn.btn-outline {
+            background: linear-gradient(135deg,
+                    #a855f7 0%,
+                    #6366f1 25%,
+                    #3b82f6 50%,
+                    #06b6d4 75%,
+                    #a855f7 100%) !important;
+            background-size: 400% 400% !important;
+            color: #ffffff !important;
+            box-shadow:
+                0 0 20px rgba(168, 85, 247, 0.5),
+                0 0 40px rgba(99, 102, 241, 0.3),
+                0 4px 14px rgba(0, 0, 0, 0.2) !important;
+            animation: holographic 7s ease infinite !important;
+            position: relative !important;
+            overflow: hidden !important;
+            border: none !important;
+        }
+
+        .search-card .btn.btn-outline::before,
+        body .btn.btn-outline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent);
+            transition: left 0.5s ease;
+        }
+
+        .search-card .btn.btn-outline:hover::before,
+        body .btn.btn-outline:hover::before {
+            left: 100%;
+        }
+
+        .search-card .btn.btn-outline:hover,
+        body .btn.btn-outline:hover {
+            box-shadow:
+                0 0 30px rgba(168, 85, 247, 0.7),
+                0 0 60px rgba(99, 102, 241, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .search-card .btn.btn-add,
+        body .btn.btn-add {
+            background: linear-gradient(135deg,
+                    #ff6b6b 0%,
+                    #feca57 25%,
+                    #ff9ff3 50%,
+                    #54a0ff 75%,
+                    #ff6b6b 100%) !important;
+            background-size: 400% 400% !important;
+            color: #ffffff !important;
+            box-shadow:
+                0 0 20px rgba(255, 107, 107, 0.5),
+                0 0 40px rgba(254, 202, 87, 0.3),
+                0 4px 14px rgba(0, 0, 0, 0.2) !important;
+            animation: holographic 6s ease infinite !important;
+            position: relative !important;
+            overflow: hidden !important;
+            border: none !important;
+        }
+
+        .search-card .btn.btn-add::before,
+        body .btn.btn-add::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent);
+            transition: left 0.5s ease;
+        }
+
+        .search-card .btn.btn-add:hover::before,
+        body .btn.btn-add:hover::before {
+            left: 100%;
+        }
+
+        .search-card .btn.btn-add:hover,
+        body .btn.btn-add:hover {
+            box-shadow:
+                0 0 30px rgba(255, 107, 107, 0.7),
+                0 0 60px rgba(254, 202, 87, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .btn-holo-search,
+        .btn-holo-reset,
+        .btn-holo-add {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-holo-search {
+            background: linear-gradient(135deg,
+                    #00f5ff 0%,
+                    #7b2cbf 25%,
+                    #3a0ca3 50%,
+                    #4361ee 75%,
+                    #00f5ff 100%);
+            background-size: 400% 400%;
+            color: #ffffff;
+            box-shadow:
+                0 0 20px rgba(0, 245, 255, 0.5),
+                0 0 40px rgba(123, 44, 191, 0.3),
+                0 4px 14px rgba(0, 0, 0, 0.2);
+            animation: holographic 8s ease infinite;
+        }
+
+        .btn-holo-search::before,
+        .btn-holo-reset::before,
+        .btn-holo-add::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-holo-search:hover::before,
+        .btn-holo-reset:hover::before,
+        .btn-holo-add:hover::before {
+            left: 100%;
+        }
+
+        .btn-holo-search:hover {
+            box-shadow:
+                0 0 30px rgba(0, 245, 255, 0.7),
+                0 0 60px rgba(123, 44, 191, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-holo-reset {
+            background: linear-gradient(135deg,
+                    #a855f7 0%,
+                    #6366f1 25%,
+                    #3b82f6 50%,
+                    #06b6d4 75%,
+                    #a855f7 100%);
+            background-size: 400% 400%;
+            color: #ffffff;
+            box-shadow:
+                0 0 20px rgba(168, 85, 247, 0.5),
+                0 0 40px rgba(99, 102, 241, 0.3),
+                0 4px 14px rgba(0, 0, 0, 0.2);
+            animation: holographic 7s ease infinite;
+        }
+
+        .btn-holo-reset:hover {
+            box-shadow:
+                0 0 30px rgba(168, 85, 247, 0.7),
+                0 0 60px rgba(99, 102, 241, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-holo-add {
+            background: linear-gradient(135deg,
+                    #ff6b6b 0%,
+                    #feca57 25%,
+                    #ff9ff3 50%,
+                    #54a0ff 75%,
+                    #ff6b6b 100%);
+            background-size: 400% 400%;
+            color: #ffffff;
+            box-shadow:
+                0 0 20px rgba(255, 107, 107, 0.5),
+                0 0 40px rgba(254, 202, 87, 0.3),
+                0 4px 14px rgba(0, 0, 0, 0.2);
+            animation: holographic 6s ease infinite;
+        }
+
+        .btn-holo-add:hover {
+            box-shadow:
+                0 0 30px rgba(255, 107, 107, 0.7),
+                0 0 60px rgba(254, 202, 87, 0.4),
+                0 6px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .table-card {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .table {
+            margin-bottom: 0;
+            background: transparent;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table thead {
+            background: #f9fafb;
+        }
+
+        .table thead th {
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #6b7280;
+            text-align: left;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .table tbody tr {
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        .table tbody td {
+            padding: 16px 20px;
+            color: #374151;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .drone-name {
+            font-weight: 600;
+            color: #1a1a2e;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .drone-name:hover {
+            color: #4a90d9;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .status-badge:hover::before {
+            left: 100%;
+        }
+
+        .status-operational {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+        }
+
+        .status-maintenance {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+        }
+
+        .status-retired,
+        .status-damaged {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+        }
+
+        .status-unknown {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 50%, #374151 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(107, 114, 128, 0.4);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            flex-wrap: nowrap;
+        }
+
+        .action-btns .btn-action {
+            padding: 8px 14px;
+            font-size: 11px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            float: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        .action-btns .btn-action.btn-view {
+            background: linear-gradient(135deg,
+                    #00f5ff 0%,
+                    #7b2cbf 25%,
+                    #3a0ca3 50%,
+                    #4361ee 75%,
+                    #00f5ff 100%) !important;
+            background-size: 400% 400% !important;
+            color: #ffffff !important;
+            box-shadow:
+                0 0 20px rgba(0, 245, 255, 0.5),
+                0 0 40px rgba(123, 44, 191, 0.3),
+                0 3px 12px rgba(0, 0, 0, 0.2);
+            animation: holographic 8s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btns .btn-action.btn-view::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-btns .btn-action.btn-view:hover::before {
+            left: 100%;
+        }
+
+        .action-btns .btn-action.btn-view:hover {
+            box-shadow:
+                0 0 30px rgba(0, 245, 255, 0.7),
+                0 0 60px rgba(123, 44, 191, 0.4),
+                0 4px 16px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .action-btns .btn-action.btn-edit {
+            background: linear-gradient(135deg,
+                    #ff6b6b 0%,
+                    #feca57 25%,
+                    #ff9ff3 50%,
+                    #54a0ff 75%,
+                    #ff6b6b 100%) !important;
+            background-size: 400% 400% !important;
+            color: #ffffff !important;
+            box-shadow:
+                0 0 20px rgba(255, 107, 107, 0.5),
+                0 0 40px rgba(254, 202, 87, 0.3),
+                0 3px 12px rgba(0, 0, 0, 0.2);
+            animation: holographic 6s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btns .btn-action.btn-edit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-btns .btn-action.btn-edit:hover::before {
+            left: 100%;
+        }
+
+        .action-btns .btn-action.btn-edit:hover {
+            box-shadow:
+                0 0 30px rgba(255, 107, 107, 0.7),
+                0 0 60px rgba(254, 202, 87, 0.4),
+                0 4px 16px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .action-btns .btn-action.btn-delete {
+            background: linear-gradient(135deg,
+                    #ff006e 0%,
+                    #fb5607 25%,
+                    #ffbe0b 50%,
+                    #8338ec 75%,
+                    #ff006e 100%) !important;
+            background-size: 400% 400% !important;
+            color: #ffffff !important;
+            box-shadow:
+                0 0 20px rgba(255, 0, 110, 0.5),
+                0 0 40px rgba(251, 86, 7, 0.3),
+                0 3px 12px rgba(0, 0, 0, 0.2);
+            animation: holographic 7s ease infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btns .btn-action.btn-delete::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.4),
+                    transparent);
+            transition: left 0.5s ease;
+        }
+
+        .action-btns .btn-action.btn-delete:hover::before {
+            left: 100%;
+        }
+
+        .action-btns .btn-action.btn-delete:hover {
+            box-shadow:
+                0 0 30px rgba(255, 0, 110, 0.7),
+                0 0 60px rgba(251, 86, 7, 0.4),
+                0 4px 16px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        @keyframes holographic {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state i {
+            font-size: 56px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+            color: #d1d5db;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            color: #9ca3af;
+        }
+
+        .flight-time {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .id-cell {
+            color: #9ca3af;
+            font-size: 13px;
+            font-family: "SF Mono", Monaco, monospace;
+        }
+
+        .flow-light-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg,
+                    #00f5ff 0%,
+                    #7b2cbf 20%,
+                    #a855f7 40%,
+                    #feca57 60%,
+                    #ff6b6b 80%,
+                    #00f5ff 100%);
+            background-size: 300% 100%;
+            animation: flowLight 8s linear infinite;
+            z-index: 9999;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.5), 0 0 40px rgba(123, 44, 191, 0.3);
+        }
+
+        @keyframes flowLight {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 300% 50%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="flow-light-container"></div>
+    <div class="container">
+        <div class="page-header">
+            <h1>无人机管理系统</h1>
+            <p>管理所有无人机设备信息</p>
+        </div>
+
+        <div class="search-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <form th:action="@{/drones}" method="get" class="search-form" style="flex: 1;">
+                    <input type="text" name="keyword" th:value="${keyword}" placeholder="搜索无人机名称、型号、制造商、序列号或状态..."
+                        class="search-input">
+                    <button type="submit"
+                        style="padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-family: inherit; position: relative; overflow: hidden; background: linear-gradient(135deg, #00f5ff 0%, #7b2cbf 25%, #3a0ca3 50%, #4361ee 75%, #00f5ff 100%); background-size: 400% 400%; color: #ffffff; box-shadow: 0 0 20px rgba(0, 245, 255, 0.5), 0 0 40px rgba(123, 44, 191, 0.3), 0 4px 14px rgba(0, 0, 0, 0.2); animation: holographic 8s ease infinite;">
+                        <i class="fa fa-search"></i> 搜索
+                    </button>
+                    <a th:href="@{/drones}"
+                        style="padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-family: inherit; position: relative; overflow: hidden; background: linear-gradient(135deg, #a855f7 0%, #6366f1 25%, #3b82f6 50%, #06b6d4 75%, #a855f7 100%); background-size: 400% 400%; color: #ffffff; box-shadow: 0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(99, 102, 241, 0.3), 0 4px 14px rgba(0, 0, 0, 0.2); animation: holographic 7s ease infinite;">
+                        <i class="fa fa-refresh"></i> 重置
+                    </a>
+                </form>
+                <a th:href="@{/drones/add}"
+                    style="margin-left: 16px; padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-family: inherit; position: relative; overflow: hidden; background: linear-gradient(135deg, #ff6b6b 0%, #feca57 25%, #ff9ff3 50%, #54a0ff 75%, #ff6b6b 100%); background-size: 400% 400%; color: #ffffff; box-shadow: 0 0 20px rgba(255, 107, 107, 0.5), 0 0 40px rgba(254, 202, 87, 0.3), 0 4px 14px rgba(0, 0, 0, 0.2); animation: holographic 6s ease infinite;">
+                    <i class="fa fa-plus"></i> 添加无人机
+                </a>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">ID</th>
+                        <th>名称</th>
+                        <th>型号</th>
+                        <th>制造商</th>
+                        <th>序列号</th>
+                        <th style="width: 100px;">飞行时间</th>
+                        <th style="width: 100px;">状态</th>
+                        <th style="width: 180px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="drone : ${drones}">
+                        <td class="id-cell" th:text="${drone.id}"></td>
+                        <td>
+                            <a th:href="@{/drones/detail/{id}(id=${drone.id})}" class="drone-name"
+                                th:text="${drone.name}"></a>
+                        </td>
+                        <td th:text="${drone.model}"></td>
+                        <td th:text="${drone.manufacturer}"></td>
+                        <td style="font-family: monospace; font-size: 12px;" th:text="${drone.serialNumber}"></td>
+                        <td class="flight-time" th:text="${drone.flightTime} + 'h'"></td>
+                        <td>
+                            <span th:if="${drone.status == '运行中'}" class="status-badge status-operational">运行中</span>
+                            <span th:if="${drone.status == '维护中'}" class="status-badge status-maintenance">维护中</span>
+                            <span th:if="${drone.status == '已退役'}" class="status-badge status-retired">已退役</span>
+                            <span th:if="${drone.status == '已损坏'}" class="status-badge status-damaged">已损坏</span>
+                            <span
+                                th:if="${drone.status != '运行中' && drone.status != '维护中' && drone.status != '已退役' && drone.status != '已损坏'}"
+                                class="status-badge status-unknown" th:text="${drone.status}"></span>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <a th:href="@{/drones/detail/{id}(id=${drone.id})}"
+                                    style="padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; font-family: inherit; position: relative; overflow: hidden; background: linear-gradient(135deg, #00f5ff 0%, #7b2cbf 25%, #3a0ca3 50%, #4361ee 75%, #00f5ff 100%); background-size: 400% 400%; color: #ffffff; box-shadow: 0 0 20px rgba(0, 245, 255, 0.5), 0 0 40px rgba(123, 44, 191, 0.3), 0 3px 12px rgba(0, 0, 0, 0.2); animation: holographic 8s ease infinite;">
+                                    <i class="fa fa-eye"></i> 查看
+                                </a>
+                                <a th:href="@{/drones/edit/{id}(id=${drone.id})}"
+                                    style="padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; font-family: inherit; position: relative; overflow: hidden; background: linear-gradient(135deg, #ff6b6b 0%, #feca57 25%, #ff9ff3 50%, #54a0ff 75%, #ff6b6b 100%); background-size: 400% 400%; color: #ffffff; box-shadow: 0 0 20px rgba(255, 107, 107, 0.5), 0 0 40px rgba(254, 202, 87, 0.3), 0 3px 12px rgba(0, 0, 0, 0.2); animation: holographic 6s ease infinite;">
+                                    <i class="fa fa-pencil"></i> 编辑
+                                </a>
+                                <a th:href="@{/drones/delete/{id}(id=${drone.id})}"
+                                    onclick="return confirm('确定要删除这台无人机吗？')"
+                                    style="padding: 8px 14px; border-radius: 6px; font-size: 11px; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; text-decoration: none; font-family: inherit; position: relative; overflow: hidden; background: linear-gradient(135deg, #ff006e 0%, #fb5607 25%, #ffbe0b 50%, #8338ec 75%, #ff006e 100%); background-size: 400% 400%; color: #ffffff; box-shadow: 0 0 20px rgba(255, 0, 110, 0.5), 0 0 40px rgba(251, 86, 7, 0.3), 0 3px 12px rgba(0, 0, 0, 0.2); animation: holographic 7s ease infinite;">
+                                    <i class="fa fa-trash"></i> 删除
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(drones)}">
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fa fa-plane"></i>
+                                <p>暂无无人机记录</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

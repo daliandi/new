@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>无人机信息管理 - 列表</title>
+    <link rel="stylesheet" th:href="@{/static/css/bootstrap.min.css}">
+    <style>
+        body { padding-top: 20px; background: #ecf0f1; }
+        .navbar { background: #3c8dbc; border: none; border-radius: 0; }
+        .navbar-brand, .navbar-nav > li > a { color: #fff !important; }
+        .ai-badge { background: #9b59b6; color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+<!-- 导航栏 -->
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <span class="navbar-brand"><i class="glyphicon glyphicon-plane"></i> 无人机信息管理系统</span>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href="/logout"><i class="glyphicon glyphicon-off"></i> 退出</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <!-- 搜索区 -->
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form method="get" action="/uav/list" class="form-inline">
+                <div class="form-group">
+                    <input type="text" name="model" class="form-control" placeholder="型号"
+                           th:value="${query.model}">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="uavCode" class="form-control" placeholder="注册编号"
+                           th:value="${query.uavCode}">
+                </div>
+                <div class="form-group">
+                    <select name="status" class="form-control">
+                        <option value="">全部状态</option>
+                        <option value="1" th:selected="${query.status == 1}">正常</option>
+                        <option value="0" th:selected="${query.status == 0}">停用</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="glyphicon glyphicon-search"></i> 搜索
+                </button>
+                <a href="/uav/add" class="btn btn-success">
+                    <i class="glyphicon glyphicon-plus"></i> 新增
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <div class="panel panel-default">
+        <div class="panel-heading">无人机列表（共 <span th:text="${page.total}">0</span> 条）</div>
+        <div class="panel-body">
+            <table class="table table-bordered table-hover table-striped">
+                <thead>
+                <tr class="info">
+                    <th>注册编号</th>
+                    <th>型号</th>
+                    <th>制造商</th>
+                    <th>最大载重(kg)</th>
+                    <th>最大高度(m)</th>
+                    <th>续航(min)</th>
+                    <th>状态</th>
+                    <th>创建时间</th>
+                    <th width="160">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="uav : ${page.rows}">
+                    <td>
+                        <span th:text="${uav.uavCode}"></span>
+                        <span class="ai-badge" th:if="${uav.aiGenerated == 1}">AI</span>
+                    </td>
+                    <td th:text="${uav.model}"></td>
+                    <td th:text="${uav.manufacturer ?: '-'}"></td>
+                    <td th:text="${uav.maxPayload ?: '-'}"></td>
+                    <td th:text="${uav.maxAltitude ?: '-'}"></td>
+                    <td th:text="${uav.maxFlightTime ?: '-'}"></td>
+                    <td>
+                        <span class="label label-success" th:if="${uav.status == 1}">正常</span>
+                        <span class="label label-danger"  th:if="${uav.status == 0}">停用</span>
+                    </td>
+                    <td th:text="${uav.createdAt}"></td>
+                    <td>
+                        <a th:href="@{/uav/edit/{id}(id=${uav.id})}" class="btn btn-xs btn-primary">
+                            <i class="glyphicon glyphicon-edit"></i> 编辑
+                        </a>
+                        <button class="btn btn-xs btn-danger" th:data-id="${uav.id}"
+                                onclick="deleteUav(this)">
+                            <i class="glyphicon glyphicon-trash"></i> 删除
+                        </button>
+                    </td>
+                </tr>
+                <tr th:if="${page.rows.empty}">
+                    <td colspan="9" class="text-center text-muted">暂无数据</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 分页 -->
+        <div class="panel-footer text-right" th:if="${page.pages > 1}">
+            <ul class="pagination pagination-sm" style="margin:0">
+                <li th:classappend="${page.pageNum == 1} ? 'disabled'">
+                    <a th:href="@{/uav/list(pageNum=${page.pageNum - 1}, model=${query.model}, uavCode=${query.uavCode}, status=${query.status})}">&laquo;</a>
+                </li>
+                <li th:each="i : ${#numbers.sequence(1, page.pages)}"
+                    th:classappend="${i == page.pageNum} ? 'active'">
+                    <a th:href="@{/uav/list(pageNum=${i}, model=${query.model}, uavCode=${query.uavCode}, status=${query.status})}"
+                       th:text="${i}"></a>
+                </li>
+                <li th:classappend="${page.pageNum == page.pages} ? 'disabled'">
+                    <a th:href="@{/uav/list(pageNum=${page.pageNum + 1}, model=${query.model}, uavCode=${query.uavCode}, status=${query.status})}">&raquo;</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/static/js/jquery.min.js}"></script>
+<script th:src="@{/static/js/bootstrap.min.js}"></script>
+<script>
+function deleteUav(btn) {
+    if (!confirm('确认删除该无人机记录？')) return;
+    var id = btn.getAttribute('data-id');
+    fetch('/api/uav/' + id, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.code === 200) {
+                alert('删除成功');
+                location.reload();
+            } else {
+                alert('删除失败：' + data.msg);
+            }
+        });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加无人机</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e8e8e8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background:
+                linear-gradient(145deg,
+                    #f5f5f5 0%,
+                    #d4d4d4 25%,
+                    #c0c0c0 50%,
+                    #a8a8a8 75%,
+                    #989898 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 10%, rgba(255, 255, 255, 0.5) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 90%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse 100% 60% at 50% 50%, rgba(180, 180, 180, 0.15) 0%, transparent 70%),
+                repeating-linear-gradient(90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.02) 2px,
+                    rgba(0, 0, 0, 0.02) 4px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+            transition: color 0.15s ease;
+        }
+
+        .back-link:hover {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .form-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f5f5f5 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .card-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: #fafbfc;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h3 i {
+            color: var(--accent-color);
+        }
+
+        .card-body {
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-label span {
+            color: var(--danger-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            background-color: #fafbfc;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            background-color: white;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237f8c8d' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-actions .btn {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a th:href="@{/drones}" class="back-link">
+            <i class="fa fa-arrow-left"></i> 返回无人机列表
+        </a>
+
+        <div class="form-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fa fa-plus-circle"></i>
+                    添加新无人机
+                </h3>
+            </div>
+
+            <div class="card-body">
+                <form th:action="@{/drones/save}" method="post">
+                    <div class="form-group">
+                        <label class="form-label">名称 <span>*</span></label>
+                        <input type="text" class="form-control" name="name" th:value="${drone.name}"
+                            placeholder="请输入无人机名称" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">型号 <span>*</span></label>
+                        <input type="text" class="form-control" name="model" th:value="${drone.model}"
+                            placeholder="请输入型号" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">制造商 <span>*</span></label>
+                        <input type="text" class="form-control" name="manufacturer" th:value="${drone.manufacturer}"
+                            placeholder="请输入制造商" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">序列号 <span>*</span></label>
+                        <input type="text" class="form-control" name="serialNumber" th:value="${drone.serialNumber}"
+                            placeholder="请输入序列号" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">飞行时间（小时） <span>*</span></label>
+                        <input type="number" step="0.01" class="form-control" name="flightTime"
+                            th:value="${drone.flightTime}" placeholder="请输入飞行时间" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">状态 <span>*</span></label>
+                        <select class="form-control" name="status" required>
+                            <option value="" disabled selected>请选择状态</option>
+                            <option value="运行中">运行中</option>
+                            <option value="维护中">维护中</option>
+                            <option value="已退役">已退役</option>
+                            <option value="已损坏">已损坏</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <a th:href="@{/drones}" class="btn btn-outline">
+                            <i class="fa fa-times"></i> 取消
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-check"></i> 保存
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
